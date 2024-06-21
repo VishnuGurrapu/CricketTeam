@@ -45,7 +45,11 @@ app.get("/players/", async (request, response) => {
     ORDER BY
       player_id;`;
   const playersArray = await db.all(getPlayersQuery);
-  response.send(playersArray);
+  response.send(
+    playersArray.map((eachPlayer) =>
+      convertDbObjectToResponseObject(eachPlayer)
+    )
+  );
 });
 
 //post player API
@@ -97,7 +101,7 @@ app.put("/players/:playerId/", async (request, response) => {
     WHERE
       player_id = ${playerId};`;
   const dbResponse = await db.run(updatePlayerQuery);
-  response.send("Player updated successfully");
+  response.send("Player Details Updated");
 });
 
 //delete API
@@ -109,7 +113,7 @@ app.delete("/players/:playerId/", async (request, response) => {
     WHERE
         player_id  = ${playerId}`;
   await db.run(deletePlayerQuery);
-  response.send("player deleted successfully");
+  response.send("Player Removed");
 });
 
-module.exports = app
+module.exports = app;

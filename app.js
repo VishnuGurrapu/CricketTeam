@@ -26,6 +26,15 @@ const initializeDBAndServer = async () => {
 };
 initializeDBAndServer();
 
+const convertDbObjectToResponseObject = (dbObject) => {
+  return {
+    playerId: dbObject.player_id,
+    playerName: dbObject.player_name,
+    jerseyNumber: dbObject.jersey_number,
+    role: dbObject.role,
+  };
+};
+
 // Get players API
 app.get("/players/", async (request, response) => {
   const getPlayersQuery = `
@@ -51,15 +60,11 @@ app.post("/players/", async (request, response) => {
     role)
     VALUES
       (
-         ${playerName},
+         '${playerName}',
          ${jerseyNumber},
-         ${role}
+         '${role}'
       );`;
-  const dbResponse = await db.run(addPlayerQuery, [
-    playerName,
-    jerseyNumber,
-    role,
-  ]);
+  const dbResponse = await db.run(addPlayerQuery);
   response.send("Player Added to Team");
 });
 
@@ -74,7 +79,7 @@ app.get("/players/:playerId/", async (request, response) => {
     WHERE
         player_id  = ${playerId};`;
   const play = await db.get(getPlayerQuery);
-  response.send(play);
+  response.send(convertDbObjectToResponseObject(play));
 });
 
 //update player API
@@ -86,11 +91,9 @@ app.put("/players/:playerId/", async (request, response) => {
     UPDATE
       cricket_team
     SET
-      
-     
-      player_name=${playerName},
+      player_name='${playerName}',
       jersey_number=${jerseyNumber},
-      role=${role}
+      role='${role}'
     WHERE
       player_id = ${playerId};`;
   const dbResponse = await db.run(updatePlayerQuery);
@@ -108,3 +111,5 @@ app.delete("/players/:playerId/", async (request, response) => {
   await db.run(deletePlayerQuery);
   response.send("player deleted successfully");
 });
+
+module.exports = app
